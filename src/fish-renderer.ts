@@ -1,4 +1,11 @@
+import {
+  resolveRenderSize,
+  type ResolvedRenderSize,
+} from "./projection/render-size";
 import * as THREE from "three";
+import { TexturedKoiPass } from "./projection/activities/textured-koi";
+import { SplashPass } from "./projection/activities/splashes";
+import { LilyClusterPass } from "./projection/activities/lily-clusters";
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
@@ -115,10 +122,12 @@ class GeometryBatch {
   public point(point: Vec2, color: THREE.Color = DEFAULT_COLOR): void {
     if (this.cursor + 3 > this.values.length) return;
     this.values[this.cursor] = this.previewOrigin
-      ? CANVAS_WIDTH * 0.5 + (point.x - this.previewOrigin.x) * this.previewScale
+      ? CANVAS_WIDTH * 0.5 +
+        (point.x - this.previewOrigin.x) * this.previewScale
       : point.x;
     this.values[this.cursor + 1] = this.previewOrigin
-      ? CANVAS_HEIGHT * 0.5 + (point.y - this.previewOrigin.y) * this.previewScale
+      ? CANVAS_HEIGHT * 0.5 +
+        (point.y - this.previewOrigin.y) * this.previewScale
       : point.y;
     this.values[this.cursor + 2] = 0;
     if (this.colorValues) {
@@ -129,7 +138,12 @@ class GeometryBatch {
     this.cursor += 3;
   }
 
-  public triangle(a: Vec2, b: Vec2, c: Vec2, color: THREE.Color = DEFAULT_COLOR): void {
+  public triangle(
+    a: Vec2,
+    b: Vec2,
+    c: Vec2,
+    color: THREE.Color = DEFAULT_COLOR,
+  ): void {
     this.point(a, color);
     this.point(b, color);
     this.point(c, color);
@@ -227,6 +241,11 @@ export class FishRenderer {
   private readonly waterSurface: WaterSurfacePass;
   private readonly weather: WeatherPass;
   private readonly tinyFishRenderer = new TinyFishRenderer();
+  private readonly texturedKoi = new TexturedKoiPass();
+  private readonly splashes = new SplashPass();
+  private readonly lilyClusters = new LilyClusterPass();
+  private drawnFrames = 0;
+  private renderSize?: ResolvedRenderSize;
   private readonly duckweed = new DuckweedPass();
   private readonly lotusLeaves = new LotusLeavesPass();
   private readonly butterflies = new ButterflyPass();
@@ -235,9 +254,8 @@ export class FishRenderer {
   private readonly outerTriangles: GeometryBatch;
   private readonly bodyTriangles: GeometryBatch;
   private readonly outlineLines: GeometryBatch;
-  private readonly appearances = Array.from(
-    { length: MAX_FISH },
-    (_, index) => createFishAppearance(index),
+  private readonly appearances = Array.from({ length: MAX_FISH }, (_, index) =>
+    createFishAppearance(index),
   );
   private readonly depthAppearances = Array.from(
     { length: MAX_FISH },
@@ -258,24 +276,33 @@ export class FishRenderer {
       powerPreference: "high-performance",
     });
     this.renderer.setPixelRatio(1);
+    this.renderer.info.autoReset = false;
     this.renderer.setSize(CANVAS_WIDTH, CANVAS_HEIGHT, false);
     this.renderer.setClearColor(0x000000, 1);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-    this.underwaterTarget = new THREE.WebGLRenderTarget(CANVAS_WIDTH, CANVAS_HEIGHT, {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      depthBuffer: false,
-      stencilBuffer: false,
-    });
+    this.underwaterTarget = new THREE.WebGLRenderTarget(
+      CANVAS_WIDTH,
+      CANVAS_HEIGHT,
+      {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        depthBuffer: false,
+        stencilBuffer: false,
+      },
+    );
     this.underwaterTarget.texture.generateMipmaps = false;
 
-    this.compositeTarget = new THREE.WebGLRenderTarget(CANVAS_WIDTH, CANVAS_HEIGHT, {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      depthBuffer: false,
-      stencilBuffer: false,
-    });
+    this.compositeTarget = new THREE.WebGLRenderTarget(
+      CANVAS_WIDTH,
+      CANVAS_HEIGHT,
+      {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        depthBuffer: false,
+        stencilBuffer: false,
+      },
+    );
     this.compositeTarget.texture.generateMipmaps = false;
 
     this.pondBed = new PondBedPass();
@@ -285,6 +312,14 @@ export class FishRenderer {
     );
     this.weather = new WeatherPass(this.compositeTarget.texture);
     this.bedScene.add(this.pondBed.mesh);
+    this.fishScene.add(this.texturedKoi.group);
+    this.fishShadowScene.add(this.texturedKoi.shadowGroup);
+    this.surfaceObjectScene.add(this.splashes.group, this.lilyClusters.group);
+    this.shadowScene.add(this.lilyClusters.shadowGroup);
+    this.lotusLeaves.group.visible = false;
+    this.lotusLeaves.shadowGroup.visible = false;
+    this.duckweed.group.visible = false;
+    this.duckweed.shadowGroup.visible = false;
     this.shadowScene.add(
       this.lotusLeaves.shadowGroup,
       this.tinyFishRenderer.shadowGroup,
@@ -315,9 +350,21 @@ export class FishRenderer {
       TRIANGLE_FLOAT_CAPACITY,
       true,
     );
-    this.outerTriangles = new GeometryBatch(whiteGeometry, TRIANGLE_FLOAT_CAPACITY, true);
-    this.bodyTriangles = new GeometryBatch(blackGeometry, TRIANGLE_FLOAT_CAPACITY, true);
-    this.outlineLines = new GeometryBatch(lineGeometry, LINE_FLOAT_CAPACITY, true);
+    this.outerTriangles = new GeometryBatch(
+      whiteGeometry,
+      TRIANGLE_FLOAT_CAPACITY,
+      true,
+    );
+    this.bodyTriangles = new GeometryBatch(
+      blackGeometry,
+      TRIANGLE_FLOAT_CAPACITY,
+      true,
+    );
+    this.outlineLines = new GeometryBatch(
+      lineGeometry,
+      LINE_FLOAT_CAPACITY,
+      true,
+    );
 
     const outerMaterial = new THREE.MeshBasicMaterial({
       vertexColors: true,
@@ -357,9 +404,16 @@ export class FishRenderer {
 
   public refreshConfig(): void {
     for (const section of [
-      "koi", "koi-palettes", "tiny-fish", "pond-bed", "water",
-      "lotus", "duckweed", "butterflies",
-    ]) this.refreshSection(section);
+      "koi",
+      "koi-palettes",
+      "tiny-fish",
+      "pond-bed",
+      "water",
+      "lotus",
+      "duckweed",
+      "butterflies",
+    ])
+      this.refreshSection(section);
   }
 
   public refreshSection(sectionId: string): void {
@@ -407,10 +461,13 @@ export class FishRenderer {
     }
   }
 
-  public resize(width: number, height: number, oldWidth: number, oldHeight: number): void {
-    this.renderer.setSize(width, height, false);
-    this.underwaterTarget.setSize(width, height);
-    this.compositeTarget.setSize(width, height);
+  public resize(
+    width: number,
+    height: number,
+    oldWidth: number,
+    oldHeight: number,
+  ): void {
+    this.syncDisplaySize();
     this.camera.right = width;
     this.camera.bottom = height;
     this.camera.updateProjectionMatrix();
@@ -420,13 +477,96 @@ export class FishRenderer {
     this.butterflies.resize(width / oldWidth, height / oldHeight);
   }
 
+  /** Keep world units stable while rasterizing every full-resolution layer at display density. */
+  private syncDisplaySize(): void {
+    const size = resolveRenderSize({
+      logicalWidth: CANVAS_WIDTH,
+      logicalHeight: CANVAS_HEIGHT,
+      cssWidth: this.canvas.clientWidth,
+      cssHeight: this.canvas.clientHeight,
+      devicePixelRatio: window.devicePixelRatio || 1,
+      previous: this.renderSize,
+    });
+    if (size.changed) {
+      this.renderer.setSize(size.width, size.height, false);
+      this.underwaterTarget.setSize(size.width, size.height);
+      this.compositeTarget.setSize(size.width, size.height);
+    }
+    this.renderSize = size;
+  }
+
   public dispose(): void {
+    this.texturedKoi.dispose();
+    this.splashes.dispose();
+    this.lilyClusters.dispose();
+    this.pondBed.dispose();
     this.underwaterTarget.dispose();
     this.compositeTarget.dispose();
     this.surfaceDisturbance.dispose();
-    this.fishShadowMaterial.dispose();
-    this.weather.dispose();
+    const geometries = new Set<THREE.BufferGeometry>();
+    const materials = new Set<THREE.Material>();
+    for (const scene of [
+      this.bedScene,
+      this.shadowScene,
+      this.fishShadowScene,
+      this.fishScene,
+      this.surfaceScene,
+      this.surfaceShadowScene,
+      this.surfaceObjectScene,
+      this.weatherScene,
+    ]) {
+      scene.traverse((object) => {
+        const mesh = object as THREE.Mesh;
+        if (mesh.geometry) geometries.add(mesh.geometry);
+        if (mesh.material) {
+          const collection = Array.isArray(mesh.material)
+            ? mesh.material
+            : [mesh.material];
+          collection.forEach((m) => materials.add(m));
+        }
+      });
+      scene.clear();
+    }
+    geometries.forEach((g) => g.dispose());
+    materials.forEach((m) => m.dispose());
+    this.renderer.renderLists.dispose();
     this.renderer.dispose();
+  }
+
+  public splash(x: number, y: number, strength: number): void {
+    this.splashes.spawn(x, y, strength);
+  }
+
+  public diagnostics(): Record<string, unknown> {
+    const info = this.renderer.info;
+    return {
+      frames: this.drawnFrames,
+      drawCalls: info.render.calls,
+      triangles: info.render.triangles,
+      points: info.render.points,
+      geometries: info.memory.geometries,
+      textures: info.memory.textures,
+      renderWidth: this.canvas.width,
+      renderHeight: this.canvas.height,
+      renderScale: this.renderSize?.scale ?? 1,
+      resolutionCapped: this.renderSize?.capped ?? false,
+      underwaterWidth: this.underwaterTarget.width,
+      underwaterHeight: this.underwaterTarget.height,
+      compositeWidth: this.compositeTarget.width,
+      compositeHeight: this.compositeTarget.height,
+      splashEffects: this.splashes.diagnostics(),
+      assetsLoaded:
+        this.pondBed.assetLoaded &&
+        this.texturedKoi.ready &&
+        this.lilyClusters.ready,
+      assetError:
+        this.pondBed.assetError ||
+        this.texturedKoi.assetError ||
+        this.lilyClusters.assetError,
+      bedLoaded: this.pondBed.assetLoaded,
+      koiTexturesLoaded: this.texturedKoi.ready,
+      lilyLoaded: this.lilyClusters.ready,
+    };
   }
 
   public setWeatherPreset(id: WeatherPresetId): void {
@@ -438,6 +578,14 @@ export class FishRenderer {
   }
 
   public draw(school: School, time: number, showDebug: boolean): void {
+    const assetError =
+      this.pondBed.assetError ||
+      this.texturedKoi.assetError ||
+      this.lilyClusters.assetError;
+    if (assetError) throw new Error(assetError);
+    this.syncDisplaySize();
+    this.renderer.info.reset();
+    this.drawnFrames++;
     if (this.previousAppearanceTime >= 0) {
       const deltaTime = Math.min(
         0.1,
@@ -468,11 +616,18 @@ export class FishRenderer {
         }
       }
     }
-    const transformOrigin = previewIndex === null
-      ? null
-      : school.fish[selectedFishIndex].position;
-    for (const batch of [this.shadowTriangles, this.outerTriangles, this.bodyTriangles, this.outlineLines]) {
-      batch.setPreviewTransform(transformOrigin, previewIndex === null ? 1 : 1.6);
+    const transformOrigin =
+      previewIndex === null ? null : school.fish[selectedFishIndex].position;
+    for (const batch of [
+      this.shadowTriangles,
+      this.outerTriangles,
+      this.bodyTriangles,
+      this.outlineLines,
+    ]) {
+      batch.setPreviewTransform(
+        transformOrigin,
+        previewIndex === null ? 1 : 1.6,
+      );
     }
 
     for (let index = 0; index < school.count; index += 1) {
@@ -481,11 +636,18 @@ export class FishRenderer {
       this.buildRenderSpine(fish);
       const appearanceIndex = previewIndex ?? index;
       const appearance = this.depthAppearances[appearanceIndex];
-      this.updateDepthAppearance(fish, this.appearances[appearanceIndex], appearance);
-      this.drawKoi(fish, appearance);
+      this.updateDepthAppearance(
+        fish,
+        this.appearances[appearanceIndex],
+        appearance,
+      );
+      if (!this.texturedKoi.ready) this.drawKoi(fish, appearance);
       if (showDebug) this.drawDebug(fish, appearance);
     }
 
+    this.texturedKoi.update(school);
+    this.splashes.update(time);
+    this.lilyClusters.update(time);
     this.shadowTriangles.commit();
     this.outerTriangles.commit();
     this.bodyTriangles.commit();
@@ -558,7 +720,10 @@ export class FishRenderer {
   }
 
   private visualDepth(depth: number): number {
-    const range = Math.max(FISH.depth.visualEnd - FISH.depth.visualStart, 0.001);
+    const range = Math.max(
+      FISH.depth.visualEnd - FISH.depth.visualStart,
+      0.001,
+    );
     const linear = Math.max(
       0,
       Math.min(1, (depth - FISH.depth.visualStart) / range),
@@ -614,11 +779,7 @@ export class FishRenderer {
       FISH.shadow.surfaceOpacity +
       (FISH.shadow.deepOpacity - FISH.shadow.surfaceOpacity) *
         this.currentVisualDepth;
-    this.shadowStrengthColor.setRGB(
-      opacity,
-      opacity,
-      opacity,
-    );
+    this.shadowStrengthColor.setRGB(opacity, opacity, opacity);
     this.shadowTriangles.triangle(
       add(a, shadowOffset),
       add(b, shadowOffset),
@@ -640,11 +801,7 @@ export class FishRenderer {
       FISH.shadow.surfaceOpacity +
       (FISH.shadow.deepOpacity - FISH.shadow.surfaceOpacity) *
         this.currentVisualDepth;
-    this.shadowStrengthColor.setRGB(
-      opacity,
-      opacity,
-      opacity,
-    );
+    this.shadowStrengthColor.setRGB(opacity, opacity, opacity);
     this.shadowTriangles.circle(
       add(center, shadowOffset),
       radius,
@@ -662,7 +819,11 @@ export class FishRenderer {
     this.outerTriangles.triangle(a, b, c, color);
   }
 
-  private silhouetteCircle(center: Vec2, radius: number, color: THREE.Color): void {
+  private silhouetteCircle(
+    center: Vec2,
+    radius: number,
+    color: THREE.Color,
+  ): void {
     this.addShadowCircle(center, radius);
     this.outerTriangles.circle(center, radius, color);
   }
@@ -689,19 +850,28 @@ export class FishRenderer {
     const pectoralCenter = 4;
     const pectoralBack = 6;
     const pectoralTangent = normalize(
-      sub(fish.renderSpine[pectoralCenter - 1], fish.renderSpine[pectoralCenter + 1]),
+      sub(
+        fish.renderSpine[pectoralCenter - 1],
+        fish.renderSpine[pectoralCenter + 1],
+      ),
       fromAngle(fish.heading),
     );
     const pectoralNormal = perpendicular(pectoralTangent);
     const gulpProgress =
-      fish.gulpAnimation / Math.max(FISH.feeding.animationDurationSeconds, 0.001);
+      fish.gulpAnimation /
+      Math.max(FISH.feeding.animationDurationSeconds, 0.001);
     const gulpPaddle = Math.sin(Math.PI * gulpProgress) * 0.85;
     const paddleActivity =
-      (fish.state === SwimState.Hover ? 1 : fish.state === SwimState.Pivot ? 0.85 : 0.45)
-      + gulpPaddle;
+      (fish.state === SwimState.Hover
+        ? 1
+        : fish.state === SwimState.Pivot
+          ? 0.85
+          : 0.45) + gulpPaddle;
     const finPulse =
       0.82 +
-      paddleActivity * 0.25 * Math.sin(fish.swimPhase * 0.64 + fish.phaseOffset);
+      paddleActivity *
+        0.25 *
+        Math.sin(fish.swimPhase * 0.64 + fish.phaseOffset);
     const pectoralReach =
       fish.bodyWidth * (0.55 + paddleActivity * 0.25) * finPulse;
     const leftPectoral = add(
@@ -729,13 +899,19 @@ export class FishRenderer {
     const pelvicCenter = 8;
     const pelvicBack = 9;
     const pelvicTangent = normalize(
-      sub(fish.renderSpine[pelvicCenter - 1], fish.renderSpine[pelvicCenter + 1]),
+      sub(
+        fish.renderSpine[pelvicCenter - 1],
+        fish.renderSpine[pelvicCenter + 1],
+      ),
       fromAngle(fish.heading),
     );
     const pelvicNormal = perpendicular(pelvicTangent);
     const pelvicReach = fish.bodyWidth * (0.28 + 0.05 * finPulse);
     const leftPelvic = add(left[pelvicCenter], mul(pelvicNormal, pelvicReach));
-    const rightPelvic = add(right[pelvicCenter], mul(pelvicNormal, -pelvicReach));
+    const rightPelvic = add(
+      right[pelvicCenter],
+      mul(pelvicNormal, -pelvicReach),
+    );
     this.silhouetteTriangle(
       left[pelvicFront],
       leftPelvic,
@@ -769,7 +945,10 @@ export class FishRenderer {
       fromAngle(fish.heading),
     );
     const headNormal = perpendicular(headForward);
-    const noseCenter = add(fish.renderSpine[0], mul(headForward, fish.bodyWidth * 0.43));
+    const noseCenter = add(
+      fish.renderSpine[0],
+      mul(headForward, fish.bodyWidth * 0.43),
+    );
     const noseHalfWidth = this.widthAt(fish, 0) * 0.72;
     const noseLeft = add(noseCenter, mul(headNormal, noseHalfWidth));
     const noseRight = add(noseCenter, mul(headNormal, -noseHalfWidth));
@@ -821,7 +1000,11 @@ export class FishRenderer {
       const spinePosition = patch.position * (SPINE_NODES - 1);
       const node = Math.min(SPINE_NODES - 2, Math.floor(spinePosition));
       const amount = spinePosition - node;
-      const center = lerp(fish.renderSpine[node], fish.renderSpine[node + 1], amount);
+      const center = lerp(
+        fish.renderSpine[node],
+        fish.renderSpine[node + 1],
+        amount,
+      );
       const previous = Math.max(0, node - 1);
       const next = Math.min(SPINE_NODES - 1, node + 2);
       const forward = normalize(

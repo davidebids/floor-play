@@ -15,7 +15,10 @@ export class Koi {
   public spine: Vec2[] = Array.from({ length: SPINE_NODES }, () => vec());
   public renderSpine: Vec2[] = Array.from({ length: SPINE_NODES }, () => vec());
   public heading = 0;
+  /** Distance-sampled head trajectory, newest point first, for body follow-through. */
+  public trail: Vec2[] = [];
   public angularVelocity = 0;
+  public bankTurnSign = 0;
   public speed = 0;
   public cruiseSpeed = 20;
   public maximumSpeed = 34;
@@ -58,7 +61,8 @@ export class Koi {
     const lengthRange = tiny ? FISH.tinyLength : FISH.regularLength;
     const widthRange = tiny ? FISH.tinyWidthRatio : FISH.regularWidthRatio;
     this.bodyLength = random.range(lengthRange[0], lengthRange[1]);
-    this.bodyWidth = this.bodyLength * random.range(widthRange[0], widthRange[1]);
+    this.bodyWidth =
+      this.bodyLength * random.range(widthRange[0], widthRange[1]);
     this.phaseOffset = random.range(0, TAU);
     this.swimPhase = this.phaseOffset;
     this.wanderSeed = random.range(0, 100);
@@ -67,12 +71,17 @@ export class Koi {
     this.respondedToCall = false;
     this.callResponseAge = 0;
     this.behaviorRng = (0x9e3779b9 ^ Math.imul(index + 1, 0x85ebca6b)) >>> 0;
-    this.depth = random.range(FISH.depth.initialRange[0], FISH.depth.initialRange[1]);
-    this.targetDepth = this.depth;
-    this.depthTransitionRate = 3 / random.range(
-      FISH.depth.transitionSeconds[0],
-      FISH.depth.transitionSeconds[1],
+    this.depth = random.range(
+      FISH.depth.initialRange[0],
+      FISH.depth.initialRange[1],
     );
+    this.targetDepth = this.depth;
+    this.depthTransitionRate =
+      3 /
+      random.range(
+        FISH.depth.transitionSeconds[0],
+        FISH.depth.transitionSeconds[1],
+      );
     this.depthStateDuration = random.range(
       FISH.depth.surfaceDurationSeconds[0],
       FISH.depth.surfaceDurationSeconds[1],
@@ -84,27 +93,40 @@ export class Koi {
       FISH.feeding.intervalSeconds[1],
     );
     this.gulpAnimation = 0;
-    this.state = index % 5;
+    this.state = index % 7 === 3 ? SwimState.Coast : SwimState.Glide;
 
     const durations: ReadonlyArray<readonly [number, number]> = [
-      [1.7, 4.8],
-      [0.8, 2],
-      [0.7, 2.9],
-      [0.35, 0.9],
-      [0.35, 0.8],
+      [8, 17],
+      [2, 4],
+      [0.6, 1.2],
+      [0.5, 0.9],
+      [2, 3.5],
     ];
     const [low, high] = durations[this.state];
     this.stateDuration = random.range(low, high);
-    this.stateAge = random.range(0, this.stateDuration * 0.8);
+    this.stateAge = random.range(0, this.stateDuration * 0.35);
     this.pivotHeading = this.heading;
     this.tailEffort = 0.6;
     this.angularVelocity = 0;
+    this.bankTurnSign = 0;
     this.velocity = mul(fromAngle(this.heading), this.speed);
 
-    const backward = mul(fromAngle(this.heading), -this.bodyLength / (SPINE_NODES - 1));
+    const backward = mul(
+      fromAngle(this.heading),
+      -this.bodyLength / (SPINE_NODES - 1),
+    );
     for (let node = 0; node < SPINE_NODES; node += 1) {
       this.spine[node] = add(this.position, mul(backward, node));
       this.renderSpine[node] = { ...this.spine[node] };
     }
+    this.resetTrail();
+  }
+
+  public resetTrail(): void {
+    const count = Math.ceil(Math.max(this.bodyLength * 1.8, 100) / 2) + 4;
+    this.trail = Array.from({ length: count }, (_, index) => ({
+      x: this.position.x - Math.cos(this.heading) * index * 2,
+      y: this.position.y - Math.sin(this.heading) * index * 2,
+    }));
   }
 }

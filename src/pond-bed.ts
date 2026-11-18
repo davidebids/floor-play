@@ -14,6 +14,9 @@ const fragmentShader = /* glsl */ `
   precision highp float;
 
   uniform vec2 uResolution;
+  uniform sampler2D uBed;
+  uniform float uBedLoaded;
+  uniform float uTime;
   uniform vec3 uDeepColor;
   uniform vec3 uShallowColor;
   uniform vec3 uSpeckColor;
@@ -42,6 +45,24 @@ const fragmentShader = /* glsl */ `
     float edgeDepth = smoothstep(0.48, 0.82, length((vUv - 0.5) * vec2(1.0, 1.25)));
     color *= 1.0 - edgeDepth * uEdgeDarkening;
 
+    if(uBedLoaded>.5){
+      vec2 uv=vec2(vUv.x,1.0-vUv.y);
+      vec2 centered=(uv-.5)/vec2(.47,.44);
+      float edge=pow(pow(abs(centered.x),5.0)+pow(abs(centered.y),5.0),.2);
+      float water=1.0-smoothstep(.79,1.0,edge);
+      vec3 photo=texture2D(uBed,uv).rgb;
+      float depth=(1.0-smoothstep(.25,.92,edge));
+      photo*=mix(vec3(1.0),vec3(.53,.72,.66),water*.82);
+      photo*=1.0-depth*.15;
+      float a=sin(uv.x*64.0+sin(uv.y*32.0+uTime*.48)*1.7+uTime*.6);
+      float b=sin(uv.y*69.0+sin(uv.x*34.0-uTime*.37)*1.8-uTime*.51);
+      float caustic=pow(max(0.0,1.0-abs(a+b)*.75),10.0);
+      photo+=vec3(.095,.12,.075)*caustic*water;
+      float foliage=sin(uv.x*14.0+uv.y*5.0+sin(uTime*.09))*.5+.5;
+      float shade=smoothstep(.45,.94,uv.y)*pow(foliage,3.0)*.10;
+      photo*=1.0-shade;
+      color=photo;
+    }
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -73,11 +94,36 @@ export class PondBedPass {
   private readonly currentAppearance = pondBedAppearanceFromConfig();
   private targetAppearance = pondBedAppearanceFromConfig();
   private previousTime = -1;
+  private disposed = false;
+  private texture: THREE.Texture;
+  public assetError = "";
+  public get assetLoaded(): boolean {
+    return this.material.uniforms.uBedLoaded.value > 0;
+  }
 
   public constructor() {
+    this.texture = new THREE.TextureLoader().load(
+      `${import.meta.env.BASE_URL}assets/pond-bed.png`,
+      (texture) => {
+        if (this.disposed) {
+          texture.dispose();
+          return;
+        }
+        this.material.uniforms.uBedLoaded.value = 1;
+      },
+      undefined,
+      () => {
+        if (!this.disposed) this.assetError = "Could not load pond artwork.";
+      },
+    );
+    this.texture.colorSpace = THREE.NoColorSpace;
+    this.texture.anisotropy = 4;
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         uResolution: { value: new THREE.Vector2(CANVAS_WIDTH, CANVAS_HEIGHT) },
+        uBed: { value: this.texture },
+        uBedLoaded: { value: 0 },
+        uTime: { value: 0 },
         uDeepColor: { value: new THREE.Color() },
         uShallowColor: { value: new THREE.Color() },
         uSpeckColor: { value: new THREE.Color() },
@@ -114,6 +160,7 @@ export class PondBedPass {
   }
 
   public update(time: number): void {
+    this.material.uniforms.uTime.value = time;
     if (this.previousTime >= 0) {
       const deltaTime = Math.min(0.1, Math.max(0, time - this.previousTime));
       const blend = 1 - Math.exp(-deltaTime * 2.25);
@@ -130,6 +177,13 @@ export class PondBedPass {
     }
     this.previousTime = time;
     this.applyUniforms();
+  }
+
+  public dispose(): void {
+    this.disposed = true;
+    this.texture.dispose();
+    this.mesh.geometry.dispose();
+    this.material.dispose();
   }
 
   private applyUniforms(): void {

@@ -1,0 +1,263 @@
+[
+  {
+    "file": "pond-stream.mp3",
+    "source": [
+      "stream"
+    ],
+    "processing": "Excerpt 18\u201346s; gentle rumble/hiss rolloff; -25 LUFS target; 2s overlap loop in runtime.",
+    "filter": "highpass=f=90,lowpass=f=6500,loudnorm=I=-25:TP=-6:LRA=7",
+    "bytes": 449277,
+    "sha256": "161c4035184df48430a9ddc96578f680ad151800ae5f3caab2bda483e411455c",
+    "integratedLUFS": -25.46,
+    "truePeakDbTP": -6.43,
+    "loudnessRangeLU": 0.2
+  },
+  {
+    "file": "forest-birds.mp3",
+    "source": [
+      "forest"
+    ],
+    "processing": "Excerpt 6\u201338s; gentle rumble/hiss rolloff; -25 LUFS target; 2s overlap loop in runtime.",
+    "filter": "highpass=f=90,lowpass=f=7000,loudnorm=I=-25:TP=-6:LRA=7",
+    "bytes": 513225,
+    "sha256": "58221023df0b61466b7526ed1ceb2d5de953e20c8d0d5b4d465f217bab04574c",
+    "integratedLUFS": -24.84,
+    "truePeakDbTP": -8.52,
+    "loudnessRangeLU": 8.8
+  },
+  {
+    "file": "tide-rocks.mp3",
+    "source": [
+      "rock-surf"
+    ],
+    "processing": "Excerpt 42\u201374s; gentle rumble/hiss rolloff; -25 LUFS target; 2s overlap loop in runtime.",
+    "filter": "highpass=f=90,lowpass=f=6500,loudnorm=I=-25:TP=-6:LRA=7",
+    "bytes": 513252,
+    "sha256": "0c0838a81eecba9226d92a6fa516e75a1f2d27ff16526d18f3a6b83cf62b774f",
+    "integratedLUFS": -25.06,
+    "truePeakDbTP": -10.44,
+    "loudnessRangeLU": 3.4
+  },
+  {
+    "file": "beach-surf.mp3",
+    "source": [
+      "sand-surf"
+    ],
+    "processing": "Excerpt 18\u201350s; gentle rumble/hiss rolloff; -25 LUFS target; 2s overlap loop in runtime.",
+    "filter": "highpass=f=90,lowpass=f=6500,loudnorm=I=-25:TP=-6:LRA=7",
+    "bytes": 513264,
+    "sha256": "04b7b2dfb01dff1f43083a4940a1e35fc0aef74cf7136aeb8d92152232cfa711",
+    "integratedLUFS": -25.32,
+    "truePeakDbTP": -9.19,
+    "loudnessRangeLU": 5.4
+  },
+  {
+    "file": "meadow-breeze.mp3",
+    "source": [
+      "trees",
+      "forest"
+    ],
+    "processing": "Trees 30\u201362s + distant forest birds 18\u201350s, 0.8:0.22 mix; -26 LUFS target; runtime 2s overlap.",
+    "filter": "highpass=f=110,lowpass=f=6500,loudnorm=I=-26:TP=-6:LRA=7",
+    "bytes": 513280,
+    "sha256": "745b13a826fe25a6e693edc9dcd113dc996db0369cf863415cf64fe075cb4af9",
+    "integratedLUFS": -28.2,
+    "truePeakDbTP": -10.21,
+    "loudnessRangeLU": 5.0
+  },
+  {
+    "file": "water-plop-a.mp3",
+    "source": [
+      "plop-a"
+    ],
+    "processing": "Leading silence trimmed, at most 2.2s, gentle EQ, -23 LUFS target / -7 dBTP ceiling, tail fade.",
+    "filter": "silenceremove=start_periods=1:start_duration=0.01:start_threshold=-42dB:start_silence=0.025,atrim=duration=2.2,highpass=f=110,lowpass=f=7500,loudnorm=I=-23:TP=-7:LRA=7,afade=t=out:st=1.8:d=0.4",
+    "bytes": 35508,
+    "sha256": "23fc809f682aa6525140778fa4abc6cc9c733e4411ec042312b6035d417a1aa6",
+    "integratedLUFS": -33.96,
+    "truePeakDbTP": -7.41,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "water-plop-b.mp3",
+    "source": [
+      "plop-b"
+    ],
+    "processing": "Leading silence trimmed, at most 2.2s, gentle EQ, -23 LUFS target / -7 dBTP ceiling, tail fade.",
+    "filter": "silenceremove=start_periods=1:start_duration=0.01:start_threshold=-42dB:start_silence=0.025,atrim=duration=2.2,highpass=f=110,lowpass=f=7500,loudnorm=I=-23:TP=-7:LRA=7,afade=t=out:st=1.8:d=0.4",
+    "bytes": 21298,
+    "sha256": "cb1ec97c112a6b698e8b2ac4015b3c5bb9eaaf93d0b51ffec9135da6fd8e1d17",
+    "integratedLUFS": -35.57,
+    "truePeakDbTP": -7.54,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "water-plop-c.mp3",
+    "source": [
+      "plop-c"
+    ],
+    "processing": "Leading silence trimmed, at most 2.2s, gentle EQ, -23 LUFS target / -7 dBTP ceiling, tail fade.",
+    "filter": "silenceremove=start_periods=1:start_duration=0.01:start_threshold=-42dB:start_silence=0.025,atrim=duration=2.2,highpass=f=110,lowpass=f=7500,loudnorm=I=-23:TP=-7:LRA=7,afade=t=out:st=1.8:d=0.4",
+    "bytes": 34254,
+    "sha256": "b563a61a9fbc2596fc0edf674668addf1658fd19d81d101845327004353e1486",
+    "integratedLUFS": -39.82,
+    "truePeakDbTP": -7.52,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "leaf-rustle-a.mp3",
+    "source": [
+      "leaves"
+    ],
+    "processing": "Single rustle excerpt 1.1\u20131.90s; softened low/high ends and 15ms/250ms fades; -26 LUFS target.",
+    "filter": "highpass=f=160,lowpass=f=6000,loudnorm=I=-26:TP=-9:LRA=7,afade=t=in:d=0.015,afade=t=out:st=0.55:d=0.25",
+    "bytes": 14252,
+    "sha256": "f46835100cd267ad21f17eee477cf5a2cfe50fb25fd063aebe160d5e0fd4754b",
+    "integratedLUFS": -33.99,
+    "truePeakDbTP": -9.33,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "leaf-rustle-b.mp3",
+    "source": [
+      "leaves"
+    ],
+    "processing": "Single rustle excerpt 5.35\u20136.15s; softened low/high ends and 15ms/250ms fades; -26 LUFS target.",
+    "filter": "highpass=f=160,lowpass=f=6000,loudnorm=I=-26:TP=-9:LRA=7,afade=t=in:d=0.015,afade=t=out:st=0.55:d=0.25",
+    "bytes": 14252,
+    "sha256": "430d0a05cc359fa6390e16e632292ffffa54d8086d4524aa5747266cf3d275d7",
+    "integratedLUFS": -38.56,
+    "truePeakDbTP": -9.35,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "leaf-rustle-c.mp3",
+    "source": [
+      "leaves"
+    ],
+    "processing": "Single rustle excerpt 7.1\u20137.90s; softened low/high ends and 15ms/250ms fades; -26 LUFS target.",
+    "filter": "highpass=f=160,lowpass=f=6000,loudnorm=I=-26:TP=-9:LRA=7,afade=t=in:d=0.015,afade=t=out:st=0.55:d=0.25",
+    "bytes": 14252,
+    "sha256": "d35ba5215c9170097bd651d4f86059b4ea4c85f07caad5665e35c235eaf6971b",
+    "integratedLUFS": -30.39,
+    "truePeakDbTP": -9.43,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "wing-flutter-a.mp3",
+    "source": [
+      "butterfly"
+    ],
+    "processing": "Separate butterfly movement 13.08\u201313.50s; 35ms soft attack, long gentle release; no synthetic noise or musical tone.",
+    "filter": "highpass=f=450,lowpass=f=6000,loudnorm=I=-28:TP=-9:LRA=7,volume=-3dB,afade=t=in:d=0.035,afade=t=out:st=0.202:d=0.218",
+    "bytes": 7984,
+    "sha256": "6bb14fe6deeebcf30167bf2b0168d9eef10212cf1b2101894c3518fecf2a1bd5",
+    "integratedLUFS": -34.05,
+    "truePeakDbTP": -12.49,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "wing-flutter-b.mp3",
+    "source": [
+      "butterfly"
+    ],
+    "processing": "Separate butterfly movement 20.74\u201321.16s; 35ms soft attack, long gentle release; no synthetic noise or musical tone.",
+    "filter": "highpass=f=450,lowpass=f=6000,loudnorm=I=-28:TP=-9:LRA=7,volume=-3dB,afade=t=in:d=0.035,afade=t=out:st=0.202:d=0.218",
+    "bytes": 7984,
+    "sha256": "86ea05a22a3495fd24475e07b2313758685523d70e0682e183263a400aa3bd74",
+    "integratedLUFS": -36.15,
+    "truePeakDbTP": -12.49,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "wing-flutter-c.mp3",
+    "source": [
+      "butterfly"
+    ],
+    "processing": "Separate butterfly movement 32.18\u201332.60s; 35ms soft attack, long gentle release; no synthetic noise or musical tone.",
+    "filter": "highpass=f=450,lowpass=f=6000,loudnorm=I=-28:TP=-9:LRA=7,volume=-3dB,afade=t=in:d=0.035,afade=t=out:st=0.202:d=0.218",
+    "bytes": 7984,
+    "sha256": "2117d3df8dd1ede9d36003da3e016f2eabe181dd2d479eefb6d7fe26355a656f",
+    "integratedLUFS": -33.85,
+    "truePeakDbTP": -13.58,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "sand-brush-a.mp3",
+    "source": [
+      "sand"
+    ],
+    "processing": "Separate sand movement 1.94\u20132.46s; 35ms soft attack, long gentle release; no synthetic noise or musical tone.",
+    "filter": "highpass=f=180,lowpass=f=4800,loudnorm=I=-26:TP=-9:LRA=7,volume=-1dB,afade=t=in:d=0.035,afade=t=out:st=0.250:d=0.270",
+    "bytes": 9238,
+    "sha256": "0b3181870a6561cfb7c47a630acb94f553ccd23b0d3c180b34219e6617e389c5",
+    "integratedLUFS": -27.7,
+    "truePeakDbTP": -11.88,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "sand-brush-b.mp3",
+    "source": [
+      "sand"
+    ],
+    "processing": "Separate sand movement 3.18\u20133.70s; 35ms soft attack, long gentle release; no synthetic noise or musical tone.",
+    "filter": "highpass=f=180,lowpass=f=4800,loudnorm=I=-26:TP=-9:LRA=7,volume=-1dB,afade=t=in:d=0.035,afade=t=out:st=0.250:d=0.270",
+    "bytes": 9238,
+    "sha256": "98df5893330208709e4b1d91df31369302a318fa91ce92a0cc39e912107ccfe8",
+    "integratedLUFS": -27.95,
+    "truePeakDbTP": -11.5,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "tide-touch-a.mp3",
+    "source": [
+      "plop-a"
+    ],
+    "processing": "Soft tide-pool contact variation: maximum 1.5s, softened 35ms attack and 0.8s water release; -10dBTP ceiling.",
+    "filter": "silenceremove=start_periods=1:start_duration=0.01:start_threshold=-42dB:start_silence=0.025,atrim=duration=1.5,highpass=f=180,lowpass=f=5000,loudnorm=I=-25:TP=-9:LRA=7,volume=-1dB,afade=t=in:d=0.035,afade=t=out:st=0.7:d=0.8",
+    "bytes": 25477,
+    "sha256": "cf269bd2f3bc3e3d6b3e6003235b39c582f56d120fdcce2c2ccadb98506ac97e",
+    "integratedLUFS": -37.02,
+    "truePeakDbTP": -10.35,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "tide-touch-b.mp3",
+    "source": [
+      "plop-b"
+    ],
+    "processing": "Soft tide-pool contact variation: maximum 1.5s, softened 35ms attack and 0.8s water release; -10dBTP ceiling.",
+    "filter": "silenceremove=start_periods=1:start_duration=0.01:start_threshold=-42dB:start_silence=0.025,atrim=duration=1.5,highpass=f=180,lowpass=f=5000,loudnorm=I=-25:TP=-9:LRA=7,volume=-1dB,afade=t=in:d=0.035,afade=t=out:st=0.7:d=0.8",
+    "bytes": 21298,
+    "sha256": "0ad27c6014e9309d063954e50f29a15e4c94251d344567400450f58f989b88fe",
+    "integratedLUFS": -39.59,
+    "truePeakDbTP": -12.15,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "tide-touch-c.mp3",
+    "source": [
+      "plop-c"
+    ],
+    "processing": "Soft tide-pool contact variation: maximum 1.5s, softened 35ms attack and 0.8s water release; -10dBTP ceiling.",
+    "filter": "silenceremove=start_periods=1:start_duration=0.01:start_threshold=-42dB:start_silence=0.025,atrim=duration=1.5,highpass=f=180,lowpass=f=5000,loudnorm=I=-25:TP=-9:LRA=7,volume=-1dB,afade=t=in:d=0.035,afade=t=out:st=0.7:d=0.8",
+    "bytes": 25477,
+    "sha256": "b12f21f19f24bd266d1bde8fe21cdebfbeecb87401543bd441af67f4ead9a734",
+    "integratedLUFS": -43.33,
+    "truePeakDbTP": -10.43,
+    "loudnessRangeLU": 0.0
+  },
+  {
+    "file": "sand-brush-c.mp3",
+    "source": [
+      "sand"
+    ],
+    "processing": "Separate sand movement 5.64\u20136.16s; 35ms soft attack, long gentle release; no synthetic noise or musical tone.",
+    "filter": "highpass=f=180,lowpass=f=4800,loudnorm=I=-26:TP=-9:LRA=7,volume=-1dB,afade=t=in:d=0.035,afade=t=out:st=0.250:d=0.270",
+    "bytes": 9238,
+    "sha256": "21771861549b16e25177ddf94ccb2daec0bd8821ac04ad6de25ac6408dfaefa1",
+    "integratedLUFS": -32.72,
+    "truePeakDbTP": -10.45,
+    "loudnessRangeLU": 0.0
+  }
+]

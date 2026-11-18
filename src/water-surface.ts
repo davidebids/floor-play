@@ -228,12 +228,17 @@ const fragmentShader = /* glsl */ `
         * fade
         * strength
         * (1.0 - life * curves.z);
-      float direction = signedDistance < 0.0 ? -1.0 : 1.0;
+      // A continuous wave slope avoids a UV tear at the crest. Energy also
+      // spreads around the growing circumference instead of staying equally
+      // forceful until the ripple abruptly expires.
+      float direction = signedDistance * curves.x * 1.65;
+      float spreading = inversesqrt(1.0 + max(radius, 0.0) * 0.035);
 
       displacement +=
         vec2(radial.x, -radial.y)
         * direction
         * distortionBand
+        * spreading
         * physics.w
         / uResolution;
     }
@@ -242,7 +247,10 @@ const fragmentShader = /* glsl */ `
     displacement +=
       vec2(localDisturbance.x, -localDisturbance.y) / uResolution;
 
-    vec2 sampleUv = clamp(vUv + displacement, vec2(0.002), vec2(0.998));
+    vec2 basin=(vUv-.5)/vec2(.47,.44);
+    float boundary=pow(pow(abs(basin.x),5.0)+pow(abs(basin.y),5.0),.2);
+    float waterMask=1.0-smoothstep(.79,1.0,boundary);
+    vec2 sampleUv = clamp(vUv + displacement*waterMask, vec2(0.002), vec2(0.998));
     vec3 color = texture2D(uUnderwater, sampleUv).rgb;
 
     vec2 distortedPixel = vec2(
@@ -250,7 +258,7 @@ const fragmentShader = /* glsl */ `
       (1.0 - sampleUv.y) * uResolution.y
     );
 
-    color *= uColorTint;
+    color *= mix(vec3(1.0),uColorTint,waterMask);
 
     if (uShowCurrentEffect > 0.5) {
       vec2 largeWavePixel = directionalWavePixel(
@@ -325,6 +333,12 @@ const fragmentShader = /* glsl */ `
         * uDetailCurrentOpacity * (1.0 - uClarity);
     }
 
+    vec3 unmodified=texture2D(uUnderwater,vUv).rgb;
+    color=mix(unmodified,color,waterMask);
+    float reflective=pow(max(0.0,sin(vUv.x*11.0+uTime*.12)*sin(vUv.y*8.0-uTime*.09)),8.0);
+    color+=vec3(.065,.085,.075)*reflective*waterMask;
+    float meniscus=exp(-abs(boundary-.91)*95.0)*.018;
+    color+=vec3(.65,.8,.72)*meniscus;
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -493,11 +507,7 @@ export class WaterSurfacePass {
 
     let activeCount = 0;
     for (const ripple of school.ripples.instances) {
-      if (
-        !ripple.alive ||
-        ripple.age < 0 ||
-        activeCount >= MAX_RIPPLES
-      ) {
+      if (!ripple.alive || ripple.age < 0 || activeCount >= MAX_RIPPLES) {
         continue;
       }
       const typeIndex = RIPPLE_TYPE_ORDER.indexOf(ripple.type);
@@ -518,7 +528,9 @@ export class WaterSurfacePass {
       this.currentAppearance.colorTint,
     );
     this.material.uniforms.uClarity.value = this.currentAppearance.clarity;
-    this.material.uniforms.uShowCurrentEffect.value = WATER.showCurrentEffect ? 1 : 0;
+    this.material.uniforms.uShowCurrentEffect.value = WATER.showCurrentEffect
+      ? 1
+      : 0;
     this.material.uniforms.uLargeCellSize.value =
       this.currentAppearance.largeCellSize;
     this.material.uniforms.uLargeCurrentOpacity.value =
@@ -612,7 +624,8 @@ export class WaterSurfacePass {
       (target.secondaryLargeCellSize - current.secondaryLargeCellSize) * blend;
     current.secondaryLargeCurrentOpacity +=
       (target.secondaryLargeCurrentOpacity -
-        current.secondaryLargeCurrentOpacity) * blend;
+        current.secondaryLargeCurrentOpacity) *
+      blend;
     current.secondaryLargeCurrentSpeed +=
       (target.secondaryLargeCurrentSpeed - current.secondaryLargeCurrentSpeed) *
       blend;
