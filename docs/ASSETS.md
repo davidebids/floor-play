@@ -48,3 +48,7 @@ Backgrounds are 1536 × 1024; the three cutouts are 1254 × 1254. Live animation
 ## Recorded audio
 
 The former synthesized noise was replaced with twenty local MP3 assets: five recorded ambience beds and separate pond-plop, tide-touch, leaf-rustle, butterfly-wing and dry-sand interaction pools. [Audio sources and processing](../public/assets/audio/README.md), [source records](../public/assets/audio/sources.json), and [loudness/hash measurements](../public/assets/audio/analysis.json) are stored with the assets. Provider credentials were unavailable; actual recorded sources were used rather than another noise-synthesis fallback.
+
+## Starlit cosmos
+
+A generated nebula backdrop, Solar System Scope Earth/Saturn maps, and NASA lunar color/elevation maps are bundled locally for live 3D rendering. Earlier three.js Earth/Moon source maps are retained alongside the current assets. Saturn uses a photographic surface map and radial RGBA ring profile, Earth has separate surface/cloud layers, and the Moon uses NASA color/elevation maps. Atmosphere, coupled ring shadows, star field, shooting-star trails and starlight bursts are code-rendered. Exact prompt, original output, texture source links and hashes: [astronomy assets](../artifacts/astronomy-assets.md). The nebula and six current planet maps total approximately4.6MB and require no external requests. Optional tap notes are locally synthesized sine partials with soft envelopes; no recorded or generated ambient noise is used.

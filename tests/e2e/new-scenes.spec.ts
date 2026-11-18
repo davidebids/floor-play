@@ -5,6 +5,7 @@ const scenes = [
   ["tide-pool", "Tide pool"],
   ["butterfly-meadow", "Butterfly meadow"],
   ["sandy-beach", "Sandy beach"],
+  ["starlit-cosmos", "Starlit cosmos"],
 ] as const;
 const diagnostics = (page: Page) =>
   page.evaluate(() => (window as any).__PROJECTION__?.diagnostics());
@@ -57,7 +58,7 @@ async function pixelDiversity(page: Page) {
   );
 }
 
-test("all five scenes display artwork, respond to input, pause, blank and switch repeatedly", async ({
+test("all six scenes display artwork, respond to input, pause, blank and switch repeatedly", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -199,7 +200,9 @@ test("recorded sound stays live across scene changes and all voices stop on paus
   ).toBe(0);
   await page.getByRole("button", { name: "Enable sound", exact: true }).click();
   await expect.poll(voices).toBeGreaterThan(0);
-  for (const [id, title] of scenes.slice(1)) {
+  for (const [id, title] of scenes
+    .slice(1)
+    .filter(([id]) => id !== "starlit-cosmos")) {
     await choose(page, id, title);
     // No canvas click is allowed here: this must carry the earlier sound gesture.
     await expect

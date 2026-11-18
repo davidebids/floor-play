@@ -1,6 +1,6 @@
 # Scene platform
 
-Floor Play is the app. Five scenes are installed: Koi pond, Forest floor, Tide pool, Butterfly meadow, and Sandy beach.
+Floor Play is the app. Six scenes are installed: Koi pond, Forest floor, Tide pool, Butterfly meadow, Sandy beach, and Starlit cosmos.
 
 ## Shared app
 
@@ -23,3 +23,13 @@ The current renderer separates logical world coordinates from output pixels. The
 ## Validation for a future scene
 
 Verify scene switching and disposal, isolated preferences, scene-owned sound, the existing camera/calibration contract, projector ownership, physical-display sizing, pointer input, recovery, and appearance in the same app chrome. Do not add unfinished activities to the picker. Scene loaders return factories; the runtime checks current canvas ownership after loading and before constructing a renderer.
+
+## Starlit cosmos
+
+`activities/astronomy.ts` owns a separate orthographic 3D renderer: a generated nebula background, lit Earth/Moon texture spheres, a texture-mapped, oblate Saturn with coplanar translucent rings and coupled shadows, and two bounded point batches for stars and transient feedback. `astronomy-model.ts` consumes the same mapped camera/pointer contract as the nature scenes. Presence parts nearby stars and gently displaces planets; taps create local starbursts and inward shooting-star trails, including at floor corners. Bodies ease back toward their anchors. Resource caps:360 stars,8 comets and8 bursts,608 effect points.
+
+The scene is an artistic astronomical composition, not a scale model or identified star chart. It uses no camera, alignment, projector or storage changes. Independent preferences: starCount, drift and starlight. Quiet pentatonic tap sonification is optional; there is no background hiss or simulated vacuum ambience. Audio unlock/mute/pause/disposal follows the shared lifecycle. Source assets and exact generation prompt are in [astronomy asset notes](../artifacts/astronomy-assets.md).
+
+Planet surface, cloud, atmosphere and ring rendering is isolated in `activities/astronomy-planets.ts`. Color maps use sRGB; cloud coverage and lunar height stay linear. Clouds rotate independently above Earth; the Moon uses LROC color plus LOLA height; Saturn's surface and ring profile share a local-light transform and equatorial tilt. The full2.27radius ring extent is used by bounds.
+
+Passive cosmos animation uses independent slow orbital targets, layered star drift and quiet automatically scheduled meteors. Ambient comets yield to tap effects and do not emit interaction impulses, bursts, response counts or notes. Celestial drift adjusts this activity; pause and blank freeze its simulation clock.

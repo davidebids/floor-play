@@ -1,6 +1,6 @@
 # Floor Play — Projection App
 
-A local floor-projection play app, built around interchangeable scenes. Five scenes are installed: Koi pond, Forest floor, Tide pool, Butterfly meadow, and Sandy beach. Each has realistic generated artwork, its own reactions and controls, and recorded nature audio.
+A local floor-projection play app, built around interchangeable scenes. Six scenes are installed: Koi pond, Forest floor, Tide pool, Butterfly meadow, Sandy beach, and Starlit cosmos. Each has detailed artwork and independent reactions and controls. The nature scenes use recorded audio; Starlit cosmos offers quiet musical tap chimes.
 
 ## Run
 
@@ -41,13 +41,14 @@ Actual projector operating orientation, coverage, brightness, shadows, and full 
 - Tide pool: send shore crabs scuttling and disturb clear water.
 - Butterfly meadow: lift butterflies into wingbeats, glides and curved flight.
 - Sandy beach: draw soft marks in the sand while waves wash the edge clean.
+- Starlit cosmos: part the stars, nudge rotating planets, and tap to send a shooting star through a luminous nebula.
 
 ## Controls
 
-- Scene: choose an installed activity. Choose between all five installed scenes.
+- Scene: choose an installed activity. Choose between all six installed scenes.
 - Mouse preview: the selected scene describes its controls. In Koi pond, move to repel fish and stir water; click to splash.
 - Space: pause/resume. B: blank/restore picture. F: fullscreen. Keyboard shortcuts ignore form inputs.
-- Scene settings: controls come from the selected scene. Koi pond supplies fish count and swimming pace. Sound and Volume control that scene’s recorded ambience and varied natural tap sounds; projector audio may need a user click in that window.
+- Scene settings: controls come from the selected scene. Koi pond supplies fish count and swimming pace. Sound and Volume control the selected scene’s soundscape or tap chimes; projector audio may need a user click in that window.
 - Save/Load setup: portable JSON profile. Paused/blank/grid states clear on a fresh load. Revalidate alignment whenever hardware moves or camera lens/settings change.
 - Reload scene: recovers a failed scene without reloading the controls. A restored browser graphics context also restarts the current scene automatically.
 - Show diagnostics: render/tracking rates, model processing time, video dimensions and local tracking preview. Model time is not end-to-end latency.

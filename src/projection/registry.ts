@@ -164,6 +164,46 @@ export const activities: readonly SceneDefinition[] = [
         .createBeachActivity;
     },
   },
+  {
+    id: "starlit-cosmos",
+    title: "Starlit cosmos",
+    description: "Luminous nebulae. Worlds within reach.",
+    thumbnail: "assets/scenes/astronomy-nebula.png",
+    pointerHint: "Move to part the stars. Tap to send a shooting star.",
+    supportsAudio: true,
+    controls: [
+      {
+        key: "starCount",
+        label: "Stars",
+        min: 80,
+        max: 360,
+        step: 20,
+        defaultValue: 200,
+      },
+      {
+        key: "drift",
+        label: "Celestial drift",
+        min: 0,
+        max: 1,
+        step: 0.05,
+        defaultValue: 0.35,
+        format: (value) =>
+          value < 0.3 ? "Still" : value > 0.7 ? "Drifting" : "Gentle",
+      },
+      {
+        key: "starlight",
+        label: "Starlight",
+        min: 0.3,
+        max: 1,
+        step: 0.05,
+        defaultValue: 0.8,
+        format: (value) => `${Math.round(value * 100)}%`,
+      },
+    ],
+    async load() {
+      return (await import("./activities/astronomy")).createAstronomyActivity;
+    },
+  },
 ];
 export async function loadActivity(
   id: string,

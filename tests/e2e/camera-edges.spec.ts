@@ -23,6 +23,7 @@ const scenes = [
   ["tide-pool", "Tide pool"],
   ["butterfly-meadow", "Butterfly meadow"],
   ["sandy-beach", "Sandy beach"],
+  ["starlit-cosmos", "Starlit cosmos"],
 ] as const;
 const diag = (page: Page) =>
   page.evaluate(() => (window as any).__PROJECTION__.diagnostics());

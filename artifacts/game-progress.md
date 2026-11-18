@@ -1,7 +1,17 @@
 # Progress
 
 ## Current work
+Astronomy repository handoff is validated:290unit tests,53full browser checks, production build, formatting and whitespace all pass. The scene, realistic planet assets, passive animation, tests and provenance are prepared together. QA recordings/builds remain local; no hosted deployment.
+
+Passive cosmos animation is live: gentle planetary drift, layered star movement and silent periodic shooting stars, governed by Celestial drift and pause/blank.290unit tests and7targeted browser checks pass with build/formatting. A hands-off recording confirms ambient life without fake tap actions or sound; evidence is under qa/astronomy-passive.
+
+Planet-realism follow-up adds photographic Saturn surface/rings, separated Earth surface/clouds with ocean highlights and thin atmosphere, and NASA Moon color/elevation with crater relief.287unit tests and8targeted browser checks pass with build/formatting; current visual evidence is under qa/astronomy-realism. The detailed planets remain at approximately60fps in both production profile sizes, without sampled frames over25ms.
+
+Starlit cosmos is implemented and open as the sixth scene: generated nebula, textured lit Earth/Moon, a ringed gas planet, gently reactive stars and planets, inward shooting-star taps and optional tuned chimes. Shared camera/calibration/projector behavior is preserved. 287 unit tests,50browser checks, TypeScript/build, formatting/whitespace and production screenshot smoke pass. The production profile at 360 stars holds16.7ms median and16.7–16.8ms p95 at normal/Retina sizes, with no sampled frame above25ms. Browser regression and production smoke results are recorded in astronomy-scene.md. Physical astronomy projection acceptance remains untested; the installed UI currently uses Mouse preview with the saved camera unavailable.
+
+## Prior scene/edge pass
 Camera interaction testing now covers all five scenes and floor edges. Refined wet-shallows filtering, separate tap/motion feedback capacity, tide ripples, crab separation/pace, gentle forest tumbling/recovery, distinct butterfly takeoff and advancing/receding beach surf with four crabs. User physically accepted all five scenes after follow-up tuning, including bottom-left koi, gentler leaves/crabs, distinct butterfly taps and revised beach water/sand taps. 263 unit tests, 46 full browser checks and a focused meadow browser rerun passed, plus the seven scene/edge browser cases rerun after the final beach rendering change, production build, formatting/whitespace and synthetic-camera production smoke. Final live state: 60 render fps, 28.8 tracking updates/s, saved alignment intact; diagnostics hidden and Sandy beach playing. See scene-camera-coverage-audit.md for physical versus synthetic evidence and limits.
+
 
 ## Completed earlier scene pass
 - Generated and integrated photographic forest, meadow, tide-pool and beach backgrounds plus transparent leaf, butterfly and shore-crab artwork. Exact prompts and original/project paths are in new-scenes-forest-assets.md and new-scenes-shore-assets.md.

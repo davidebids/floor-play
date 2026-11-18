@@ -18,6 +18,7 @@ const scenes = [
   "forest-floor",
   "butterfly-meadow",
   "sandy-beach",
+  "starlit-cosmos",
 ];
 const sizes = [
   { width: 1280, height: 720, dpr: 1 },
@@ -44,6 +45,7 @@ const settings = {
     "tide-pool": { crabCount: 12, waterMotion: 1 },
     "butterfly-meadow": { butterflyCount: 16, breeze: 1 },
     "sandy-beach": { trailDuration: 12, waveMotion: 1 },
+    "starlit-cosmos": { starCount: 360, drift: 1, starlight: 1 },
   },
 };
 const quantile = (sorted, p) =>
